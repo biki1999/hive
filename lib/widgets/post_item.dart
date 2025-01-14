@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
 import '../models/post.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:html/parser.dart';
 
 class PostItem extends StatelessWidget {
   final Post post;
 
   const PostItem({super.key, required this.post});
-  String _extractDescription(String description) {
-    // Strip any unwanted Markdown or HTML tags (basic example).
-    return description
+  // String _extractDescription(String description) {
+  //   // Strip any unwanted Markdown or HTML tags (basic example).
+  //   return description
+  //       .replaceAll(RegExp(r'\[.*?\]\(.*?\)'), '')
+  //       .replaceAll(RegExp(r'<[^>]*>'), '')
+  //       .replaceAll(RegExp(r'\s+'), ' ')
+  //       .trim();
+  // }
+  String _extractDescription(String rawDescription) {
+    // Remove HTML tags
+    var document = parse(rawDescription);
+    String parsedString =
+        parse(document.body?.text).documentElement?.text ?? "";
+
+    // Remove unwanted links using a regex
+    String cleanedDescription = parsedString
+        .replaceAll(RegExp(r'http[s]?:\/\/\S+'), '')
         .replaceAll(RegExp(r'\[.*?\]\(.*?\)'), '')
         .replaceAll(RegExp(r'<[^>]*>'), '')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
+
+    return cleanedDescription;
   }
 
   @override
